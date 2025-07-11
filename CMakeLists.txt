@@ -7,7 +7,7 @@ set(CMAKE_C_STANDARD 99) # Sets the C standard to C99
 option(CREGEX_BUILD_TESTS "Build unit tests" OFF)
 option(CREGEX_BUILD_EXAMPLES "Build usage examples" OFF)
 
-add_library(cregex STATIC src/cregex.c)
+add_library(cregex STATIC src/regex.c)
 target_include_directories(cregex PUBLIC include)
 
 # Tests
