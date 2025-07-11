@@ -97,28 +97,23 @@ regex_t *regex_compile(const char *pattern) {
 	return re;
 }
 
-int regex_match(const regex_t *re, const char *text, regex_match_t *match) {
-	if (! re || ! text || ! match)
+int regex_match(const regex_t *regex, const char *text, regex_match_t *match) {
+	if (! regex || ! text || ! match)
 		return -1;
-
-	size_t text_len = strlen(text);
 	size_t pos      = 0;
 
 	// Handle start anchor
-	if (re->is_start_anchor && pos != 0) {
-		return -1;
-	}
 
 	while (text[pos]) {
 		// Handle word boundary
-		if (re->is_word_boundary && ! check_word_boundary(text, pos)) {
+		if (regex->is_word_boundary && ! check_word_boundary(text, pos)) {
 			pos++;
 			continue;
 		}
 
 		// Handle character sets
-		if (re->charset) {
-			if (! match_charset(re->charset, re->charset_len, text[pos])) {
+		if (regex->charset) {
+			if (! match_charset(regex->charset, regex->charset_len, text[pos])) {
 				pos++;
 				continue;
 			}
@@ -128,19 +123,19 @@ int regex_match(const regex_t *re, const char *text, regex_match_t *match) {
 		}
 
 		// Handle end anchor
-		if (re->is_end_anchor && text[pos] != '\0') {
+		if (regex->is_end_anchor && text[pos] != '\0') {
 			pos++;
 			continue;
 		}
 
 		// Simple literal match (for now)
-		size_t pattern_pos = re->is_start_anchor ? 1 : 0;
-		if (re->is_word_boundary)
+		size_t pattern_pos = regex->is_start_anchor ? 1 : 0;
+		if (regex->is_word_boundary)
 			pattern_pos += 2;
 
-		const char *pattern = re->pattern + pattern_pos;
+		const char *pattern = regex->pattern + pattern_pos;
 		size_t      len     = strlen(pattern);
-		if (re->is_end_anchor)
+		if (regex->is_end_anchor)
 			len--;
 
 		if (strncmp(text + pos, pattern, len) == 0) {
